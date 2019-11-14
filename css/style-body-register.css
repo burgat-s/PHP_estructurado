@@ -20,9 +20,13 @@ img.logoregistro{
 }
 span.invalido{
 font-family: 'Playfair Display', serif;
-color: red;
+
+color: yellow;
 }
 p.aviso{
-  color: red;
+
+  color: yellow;
   font-family: 'Playfair Display', serif;
+  display: inline-block;
+
 }

@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <?php
-require_once ("funciones.php");
+
+$errorLogin = "";
+$errorValidado =0 ;
 
 if(!isset($_SESSION))
 {
@@ -15,8 +17,31 @@ if(isset($_SESSION["username"])){
   header("Location:index.php");
 }
 if(isset($_POST["iniciarSession"])){
-  $invalidos= validarLogin($_POST);
-var_dump($invalidos);
+  require_once 'clases/Validador.php';
+  $validador = new Validador;
+  $errorLogin = $validador->validarDatosLogin($_POST["email"],$_POST["password"]);
+
+  if($errorLogin == ""){
+    require_once 'clases/bbdd.php';
+    $bbdd = new BBDD;
+    $errorValidado =$bbdd->corrogorarLogin($_POST["email"],$_POST["password"]);
+    if ($errorValidado){
+      //RECORDARME
+        if(isset($_POST["recordarme"])){
+          if($_POST["recordarme"] != null){
+            $usernameaux=$_POST["username"];
+            setcookie("username","$usernameaux", time() + 60 * 60* 24 );
+          }
+        }
+        //LOGUEO AL USUARIO Y REDIRIJO AL HOME
+        session_start();
+      $_SESSION["username"] = $_POST["nombre"];
+        header("Location:home.php");
+    }
+  }
+
+
+
 }
 
 ?>
@@ -80,6 +105,7 @@ var_dump($invalidos);
   <div class="form-group">
     <label for="exampleInputPassword1">Contraseña</label>
     <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password" name="password">
+    <?php if($errorValidado){  ?><span style="color: yellow">Los datos ingresados son incorrectos."</span> <?php } ?>
   </div>
   <div class="form-group form-check">
     <input type="checkbox" class="form-check-input" id="exampleCheck1" name="recordarme">
